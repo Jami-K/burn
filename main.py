@@ -85,8 +85,8 @@ if __name__ == "__main__":
     p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img,))
     p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img,))
 
-    #p_AU.start()
-    #p_AD.start()
+    p_AU.start()
+    p_AD.start()
     #p_BU.start()
     #p_BD.start()
 
@@ -163,40 +163,40 @@ if __name__ == "__main__":
         cv2.moveWindow('Noksan', 30, 0)
         cv2.waitKey(1)
 
-        """
+        
         for i in range(AU_img.qsize()):
             imgAU = AU_img.get()
             if i == 0:
-                cv2.imshow('A-Upper', imgA)
-                cv2.moveWindow('A-Upper', 0, 600, )
+                cv2.imshow('A-Upper', imgAU)
+                cv2.moveWindow('A-Upper', 0, 600)
 
         for i in range(AD_img.qsize()):
-            imgAU = AD_img.get()
+            imgAD = AD_img.get()
             if i == 0:
-                cv2.imshow('A-Down', imgA)
-                cv2.moveWindow('A-Down', 0, 600, )
-
+                cv2.imshow('A-Down', imgAD)
+                cv2.moveWindow('A-Down', 0, 600)
+        """
         for i in range(BU_img.qsize()):
-            imgB = BU_img.get()
+            imgBU = BU_img.get()
             if i == 0:
-                cv2.imshow('B-Upper', imgB)
-                cv2.moveWindow('B-Upper', 800, 600, )
+                cv2.imshow('B-Upper', imgBU)
+                cv2.moveWindow('B-Upper', 800, 600)
 
-        for i in range(BU_img.qsize()):
-            imgB = BU_img.get()
+        for i in range(BD_img.qsize()):
+            imgBD = BD_img.get()
             if i == 0:
-                cv2.imshow('B-Down', imgB)
-                cv2.moveWindow('B-Down', 800, 600, )
+                cv2.imshow('B-Down', imgBD)
+                cv2.moveWindow('B-Down', 800, 600)
         """
         if program_off:
             AU_quit.put('off')
             AD_quit.put('off')
-            BU_quit.put('off')
-            BD_quit.put('off')
+            #BU_quit.put('off')
+            #BD_quit.put('off')
             cv2.destroyAllWindows()
             break
 
     p_AU.join()
     p_AD.join()
-    p_BU.join()
-    p_BD.join()
+    #p_BU.join()
+    #p_BD.join()
