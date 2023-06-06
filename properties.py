@@ -13,7 +13,6 @@ esc = 114
 frame_delay = 1
 
 """각종 설정 값"""
-cam_setting = './camera_setting.pfs' #카메라 설정값
 relay_port = 0 #USB-Relay포트
 Reject_limit = 100 #리젝트 한계 기준
 Save_img_limit = 100 #이미지 저장 한계 기준
@@ -39,32 +38,34 @@ A_U = {
     'win_x':90+30+20,
     'win_y':0,
     'cam_port': 0,
+    'cam_setting': './camera_setting.pfs',
     'relay_gate': 1,
     'relay_runtime': .15,
     'tray':[0] * 8,
     "batch_size": 1,
-    "config_file": './data/burn_yolov4.cfg',
-    "data_file": './data/data.data',
+    "config_file": './data/yolov4.cfg',
+    "data_file": './data/obj.data',
     "thresh": 0.2,
     "hier_thresh": .99,
     "nms": .1,
-    "weights": './weights/burn_yolov4_10000.weights'
+    "weights": './weights/yolov4_best.weights'
     }
 
 A_D = {
     'line': 'A',
     'window': '#12A.Line_Down - Q : Quit',
     'cam_port': 1,
+    'cam_setting': './camera_setting.pfs',
     'relay_gate': 2,
     'relay_runtime': .15,
     'tray':[0] * 8,
     "batch_size": 1,
-    "config_file": './data/burn_yolov4.cfg',
-    "data_file": './data/data.data',
+    "config_file": './data/yolov4.cfg',
+    "data_file": './data/obj.data',
     "thresh": 0.2,
     "hier_thresh": .99,
     "nms": .1,
-    "weights": './weights/burn_yolov4_10000.weights'
+    "weights": './weights/yolov4_best.weights'
 }
 
 B_U = {
@@ -73,32 +74,34 @@ B_U = {
     'win_x': int(659*.8)+30+90+20,
     'win_y': 0,
     'cam_port': 2,
+    'cam_setting': './camera_setting.pfs',
     'relay_gate': 3,
     'relay_runtime': .15,
     'tray':[0] * 8,
     "batch_size": 1,
-    "config_file": './data/burn_yolov4.cfg',
-    "data_file": './data/data.data',
+    "config_file": './data/yolov4.cfg',
+    "data_file": './data/obj.data',
     "thresh": 0.2,
     "hier_thresh": .99,
     "nms": .1,
-    "weights": './weights/burn_yolov4_10000.weights'
+    "weights": './weights/yolov4_best.weights'
     }
 
 B_D = {
     'line': 'B',
     'window': '#12B.Line_Down - Q : Quit',
     'cam_port': 3,
+    'cam_setting': './camera_setting.pfs',
     'relay_gate': 4,
     'relay_runtime': .15,
     'tray':[0] * 8,
     "batch_size": 1,
-    "config_file": './data/burn_yolov4.cfg',
-    "data_file": './data/data.data',
+    "config_file": './data/yolov4.cfg',
+    "data_file": './data/obj.data',
     "thresh": 0.2,
     "hier_thresh": .99,
     "nms": .1,
-    "weights": './weights/burn_yolov4_10000.weights'
+    "weights": './weights/yolov4_best.weights'
 }
 
 
