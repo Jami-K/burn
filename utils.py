@@ -68,11 +68,13 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q):
                 img_check, pic = get_img()
             
                 if img_check:
-                    IMG_marked, detections, IMG = image_detection(pic, network, class_names, attribute)
+                    result = image_detection(pic, network, class_names, attribute)
                 
+                    IMG_marked, detections, IMG = result
+                    
                     img_Q.put(cv2.resize(IMG, (250, 200), interpolation=cv2.INTER_LINEAR))
                 
-                    if 1 in tray[-2]:
+                    if 1 in tray[-2:] :
                         run_R(dic, attribute)
                     tray = move_tray(tray)
                     if 1 in tray:
@@ -84,7 +86,6 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q):
                         if answer:
                             if reject_or_pass == 'reject':
                                 tray[0] = 1
-                            #리젝트 될 수 있도록 신호를 입력하도록 하세요
 
                             IMG_name = save_img(pic, attribute, confidence, name)
                             #save_annotations(IMG_name, image_resized, detections, class_names)
@@ -95,9 +96,9 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q):
                 IMG = cv2.putText(IMG, "Program not run plz press F5...", (10, 100), cv2.FONT_HERSHEY_DUPLEX, 1, [255,200,255], 2)
                 img_Q.put(IMG)
             
-    cameras.StopGrabbing()
-    cameras.Close()
-    cv2.destroyAllWindows()
+        cameras.StopGrabbing()
+        cameras.Close()
+        cv2.destroyAllWindows()
                     
 def load_camera(attribute):
     global camera, cam
@@ -188,6 +189,11 @@ def bbox2points(bbox):
     ymin = int(round(y - (h / 2)))
     ymax = int(round(y + (h / 2)))
     return xmin, ymin, xmax, ymax
+
+def move_tray(tray):
+    tray = tray[-1]
+    tray.insert(0,0)
+    return tray
 
 def decide_ng(detections, attribute):
     answer = False
