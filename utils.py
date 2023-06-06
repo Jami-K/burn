@@ -1,7 +1,7 @@
 import os
 import random
-import time, datetime, cv2
-#import darknet
+import time, datetime, cv2, hid
+import darknet
 import numpy as np
 import properties
 
@@ -21,13 +21,13 @@ camera = None
 def get_relay():
     dic = []
     for i in hid.enumerate():
-        print(i)
-        if i['product_string'] == 'USBRelay8':
+        #print(i)
+        if i['product_string'] == 'USBRelay2':
             dic.append(i['path'])
     return dic
 
 def Main(line, start_Q, quit_Q, reject_Q, img_Q):
-    global IMG
+    global IMG, cameras
 
     if line == 'A_U':
         attribute = properties.A_U
@@ -52,15 +52,15 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q):
         IMG = cv2.putText(IMG, "Waiting RUN signal...", (10, 100), cv2.FONT_HERSHEY_DUPLEX, 1, [255,200,255], 2)
         
         """ YOLO 모델 활성 """
-        network, class_names = load_network()
+        network, class_names = load_network(attribute)
 
         """ 본 검사 프로그램 가동 """
         while True:
-            if start_Q.qsize > 0:
+            if start_Q.qsize() > 0:
                 run_or_stop = start_Q.get()
                 print(run_or_stop)
                 
-            if reject_Q.qsize > 0:
+            if reject_Q.qsize() > 0:
                 reject_or_pass = reject_Q.get()
                 print(reject_or_pass)
         
@@ -68,9 +68,7 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q):
                 img_check, pic = get_img()
             
                 if img_check:
-                    result = image_detection(pic, network, class_names, attribute)
-            
-                    IMG, detections, image_resized = result
+                    IMG_marked, detections, IMG = image_detection(pic, network, class_names, attribute)
                 
                     img_Q.put(cv2.resize(IMG, (250, 200), interpolation=cv2.INTER_LINEAR))
                 
@@ -93,7 +91,7 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q):
                             show_NG(IMG, attribute, confidence)
             else:
                 _1, _2 = get_img()
-                IMG = np.zeros((1282,1026,3),np.uint8)
+                IMG = np.zeros((250,200,3),np.uint8)
                 IMG = cv2.putText(IMG, "Program not run plz press F5...", (10, 100), cv2.FONT_HERSHEY_DUPLEX, 1, [255,200,255], 2)
                 img_Q.put(IMG)
             
@@ -113,36 +111,42 @@ def load_camera(attribute):
         for i, cam in enumerate(camera):
             cam.Attach(tlFactory.CreateDevice(devices[attribute['cam_port']]))
         camera.Open()
-        pylon.FeaturePersistence.Load(properties.cam_setting, self.cam.GetNodeMap(), True)
+        #pylon.FeaturePersistence.Load(attribute['cam_setting'], cam.GetNodeMap(), True)
+        print('*'*16)
+        print("Camera Ready... Setting : {}".format(attribute['cam_setting']))
+        print('*'*16)
         camera.StartGrabbing(pylon.GrabStrategy_LatestImageOnly)
         
         return True, camera
     
     except:
+        print("-"*16)
+        print("Camera Error....")
+        print("-"*16)
         return False, 'error'
 
 def get_img():
     try:
-        self.grabResult = self.cameras.RetrieveResult(2000, pylon.TimeoutHandling_ThrowException)
-        if self.cameras.IsGrabbing():
-            image_raw = self.converter.Convert(self.grabResult)
+        grabResult = cameras.RetrieveResult(2000, pylon.TimeoutHandling_ThrowException)
+        if cameras.IsGrabbing():
+            image_raw = converter.Convert(grabResult)
             image_raw = image_raw.GetArray()
             image = cv2.cvtColor(image_raw, cv2.COLOR_BGR2RGB)
-            self.grabResult.Release()
-            return True, img
+            grabResult.Release()
+            return True, image
     except:
         return False, 'error'
 
-def load_network():
+def load_network(attribute):
     """ 네트워크 모델 생성 하여 모델, 클래스이름, 클래스별 색상을 받기 """
     random.seed(3)  # deterministic bbox colors
-    network, class_names, class_colors = darknet.load_network(config_file=attribute['config_file'],
-                                                              data_file=attribute['data_file'],
-                                                              weights=attribute['weights_file'],
+    network, class_names, class_colors = darknet.load_network(config_file=attribute["config_file"],
+                                                              data_file=attribute["data_file"],
+                                                              weights=attribute["weights"],
                                                               batch_size=1)
     return network, class_names
 
-def iamge_detection(pic, network, class_names, attribute):
+def image_detection(pic, network, class_names, attribute):
     """ 이미지 내 사물 디텍팅 하기 """
     width = darknet.network_width(network)
     height = darknet.network_height(network)
@@ -152,7 +156,7 @@ def iamge_detection(pic, network, class_names, attribute):
     image_resized = cv2.resize(image_rgb, (width, height),                                   interpolation=cv2.INTER_LINEAR)
 
     darknet.copy_image_from_bytes(darknet_image, image_resized.tobytes())
-    detections = darknet.detect_image(network, class_names, darknet_image, thresh=attribute['thresh'], nms=attribute['nms'])
+    detections = darknet.detect_image(network, class_names, darknet_image, thresh=attribute["thresh"], nms=attribute["nms"])
     darknet.free_image(darknet_image)
     image = draw_boxes(detections, image_resized, image_rgb)
 
