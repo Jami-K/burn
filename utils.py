@@ -4,6 +4,7 @@ import time, datetime, cv2, hid
 import darknet
 import numpy as np
 import properties
+import importlib
 
 from pypylon import pylon
 from time import sleep, localtime, strftime
@@ -26,7 +27,7 @@ def get_relay():
             dic.append(i['path'])
     return dic
 
-def Main(line, start_Q, quit_Q, reject_Q, img_Q):
+def Main(line, start_Q, quit_Q, reject_Q, img_Q, setting_Q):
     global IMG, cameras
 
     if line == 'A_U':
@@ -58,11 +59,16 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q):
         while True:
             if start_Q.qsize() > 0:
                 run_or_stop = start_Q.get()
-                print(run_or_stop)
+                #print("검사 가동 상태를 변경합니다.")
                 
             if reject_Q.qsize() > 0:
                 reject_or_pass = reject_Q.get()
-                print(reject_or_pass)
+                #print("리젝트 유무 설정을 변경합니다.")
+        
+            if setting_Q.qsize() > 0:
+                _ = setting_Q.get()
+                importlib.reload(properties)
+                #print("새로운 설정값을 로드합니다.")
         
             if run_or_stop == 'start':
                 img_check, pic = get_img()
@@ -191,7 +197,7 @@ def bbox2points(bbox):
     return xmin, ymin, xmax, ymax
 
 def move_tray(tray):
-    tray = tray[-1]
+    tray = tray[-1:]
     tray.insert(0,0)
     return tray
 
