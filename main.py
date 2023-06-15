@@ -11,7 +11,7 @@ yolo_run = False
 off_click = False
 reject_click = False
 yolo_click = False
-
+setting_click = False
 
 AU_start, AD_start, BU_start, BD_start = Queue(), Queue(), Queue(), Queue()
 AU_quit, AD_quit, BU_quit, BD_quit = Queue(), Queue(), Queue(), Queue()
@@ -24,20 +24,20 @@ def mouse_event(event, x, y, flags, param):
     _, _ = flags, param
     
     """ 마우스 오버레이시 변화 """
-    if 9 < x < 84 and 48 < y < 121:
-        off_click = True
-    else:
-        off_click = False
-        
-    if 9 < x < 84 and 145 < y < 218:
-        reject_click = True
-    else:
-        reject_click = False
-        
-    if 9 < x < 84 and 240 < y < 320:
-        yolo_click = True
-    else:
-        yolo_click = False
+    if 9 < x < 84:
+        if 48 < y < 121:
+            off_click = True
+        elif 145 < y < 218:
+            reject_click = True
+        elif 240 < y < 320:
+            yolo_click = True
+        elif 340 < y < 420:
+            setting_click = True
+        else:
+            off_click = False
+            reject_click = False
+            yolo_click = False
+            setting_click = False
         
     if event == cv2.EVENT_LBUTTONDOWN:
         pass
@@ -73,6 +73,27 @@ def mouse_event(event, x, y, flags, param):
                AD_start.put('start')
                BU_start.put('start')
                BD_start.put('start')
+               
+        if 9 < x < 84 and 340 < y < 420:
+            p_AU.terminate()
+            p_AU.join()
+            p_AU = Process(target=utils.Main, args=('A_U', AU_start, AU_quit, AU_reject, AU_img,))
+            p_AU.start()
+            
+            p_AD.terminate()
+            p_AD.join()
+            p_AD = Process(target=utils.Main, args=('A_D', AD_start, AD_quit, AD_reject, AD_img,))
+            p_AD.start()
+            
+            p_BU.terminate()
+            p_BU.join()
+            p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img,))
+            p_BU.start()
+            
+            p_BD.terminate()
+            p_BD.join()
+            p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img,))
+            p_BD.start()
 
     if event == cv2.EVENT_RBUTTONDOWN:
         print(f'x:({x}), y:({y})')
@@ -80,13 +101,13 @@ def mouse_event(event, x, y, flags, param):
 if __name__ == "__main__":
     #utils.del_folder()
     
-    p_AU = Process(target=utils.Main, args=('A_U', AU_start, AU_quit, AU_reject, AU_img,))
-    p_AD = Process(target=utils.Main, args=('A_D', AD_start, AD_quit, AD_reject, AD_img,))
-    p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img,))
-    p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img,))
+    #p_AU = Process(target=utils.Main, args=('A_U', AU_start, AU_quit, AU_reject, AU_img,))
+    #p_AD = Process(target=utils.Main, args=('A_D', AD_start, AD_quit, AD_reject, AD_img,))
+    #p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img,))
+    #p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img,))
 
-    p_AU.start()
-    p_AD.start()
+    #p_AU.start()
+    #p_AD.start()
     #p_BU.start()
     #p_BD.start()
 
@@ -94,7 +115,7 @@ if __name__ == "__main__":
     cv2.setMouseCallback('Noksan', mouse_event)
     
     while True:
-        IMG = np.zeros((int(494*.8), 90, 3), np.uint8)
+        IMG = np.zeros((470, 90, 3), np.uint8)
         
         """ 프로그램 종료 버튼 그리기 """
         if off_click:
@@ -158,6 +179,19 @@ if __name__ == "__main__":
                 IMG = cv2.putText(IMG, f"Detect off", (13, 310),
                                   cv2.FONT_HERSHEY_DUPLEX, .4, [250, 200, 255], 1)
         cv2.line(IMG, (5, 330), (85, 330), (50, 50, 50), 1)
+        
+        """ 설정값 변경 그리기 """
+        if setting_click:
+            IMG = cv2.putText(IMG, f"SETTING", (15, 378),
+                              cv2.FONT_HERSHEY_DUPLEX, 1, [150, 150, 255], 2)
+            IMG = cv2.putText(IMG, f"Click here", (10, 408),
+                              cv2.FONT_HERSHEY_DUPLEX, .4, [150, 150, 255], 1)
+        else:
+            IMG = cv2.putText(IMG, f"SETTING", (15, 380),
+                              cv2.FONT_HERSHEY_DUPLEX, 1, [250, 200, 255], 2)
+            IMG = cv2.putText(IMG, f"Click here", (10, 410),
+                              cv2.FONT_HERSHEY_DUPLEX, .4, [250, 200, 255], 1)
+        cv2.line(IMG, (5,430), (85,430), (50,50,50), 1)
 
         cv2.imshow('Noksan', IMG)
         cv2.moveWindow('Noksan', 30, 0)
