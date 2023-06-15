@@ -7,6 +7,7 @@ from multiprocessing import Process, Queue
 program_off = False
 reject_run = True
 yolo_run = False
+setting_change = False
 
 off_click = False
 reject_click = False
@@ -17,9 +18,10 @@ AU_start, AD_start, BU_start, BD_start = Queue(), Queue(), Queue(), Queue()
 AU_quit, AD_quit, BU_quit, BD_quit = Queue(), Queue(), Queue(), Queue()
 AU_reject, AD_reject, BU_reject, BD_reject = Queue(), Queue(), Queue(), Queue()
 AU_img, AD_img, BU_img, BD_img = Queue(), Queue(), Queue(), Queue()
+AU_setting, AD_setting, BU_setting, BD_setting = Queue(), Queue(), Queue(), Queue()
 
 def mouse_event(event, x, y, flags, param):
-    global program_off, reject_run, yolo_run, off_click, reject_click, yolo_click
+    global program_off, reject_run, yolo_run, setting_change, off_click, reject_click, yolo_click, setting_click
     global AU_reject, AD_reject, BU_reject, BD_reject
     _, _ = flags, param
     
@@ -75,25 +77,7 @@ def mouse_event(event, x, y, flags, param):
                BD_start.put('start')
                
         if 9 < x < 84 and 340 < y < 420:
-            p_AU.terminate()
-            p_AU.join()
-            p_AU = Process(target=utils.Main, args=('A_U', AU_start, AU_quit, AU_reject, AU_img,))
-            p_AU.start()
-            
-            p_AD.terminate()
-            p_AD.join()
-            p_AD = Process(target=utils.Main, args=('A_D', AD_start, AD_quit, AD_reject, AD_img,))
-            p_AD.start()
-            
-            p_BU.terminate()
-            p_BU.join()
-            p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img,))
-            p_BU.start()
-            
-            p_BD.terminate()
-            p_BD.join()
-            p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img,))
-            p_BD.start()
+            setting_change = True
 
     if event == cv2.EVENT_RBUTTONDOWN:
         print(f'x:({x}), y:({y})')
@@ -101,12 +85,12 @@ def mouse_event(event, x, y, flags, param):
 if __name__ == "__main__":
     #utils.del_folder()
     
-    #p_AU = Process(target=utils.Main, args=('A_U', AU_start, AU_quit, AU_reject, AU_img,))
+    p_AU = Process(target=utils.Main, args=('A_U', AU_start, AU_quit, AU_reject, AU_img, AU_setting,))
     #p_AD = Process(target=utils.Main, args=('A_D', AD_start, AD_quit, AD_reject, AD_img,))
     #p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img,))
     #p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img,))
 
-    #p_AU.start()
+    p_AU.start()
     #p_AD.start()
     #p_BU.start()
     #p_BD.start()
@@ -182,21 +166,27 @@ if __name__ == "__main__":
         
         """ 설정값 변경 그리기 """
         if setting_click:
-            IMG = cv2.putText(IMG, f"SETTING", (15, 378),
+            IMG = cv2.putText(IMG, f"SETS", (5, 378),
                               cv2.FONT_HERSHEY_DUPLEX, 1, [150, 150, 255], 2)
-            IMG = cv2.putText(IMG, f"Click here", (10, 408),
+            IMG = cv2.putText(IMG, f"Update NOW", (3, 408),
                               cv2.FONT_HERSHEY_DUPLEX, .4, [150, 150, 255], 1)
         else:
-            IMG = cv2.putText(IMG, f"SETTING", (15, 380),
+            IMG = cv2.putText(IMG, f"SETS", (5, 380),
                               cv2.FONT_HERSHEY_DUPLEX, 1, [250, 200, 255], 2)
-            IMG = cv2.putText(IMG, f"Click here", (10, 410),
+            IMG = cv2.putText(IMG, f"Update sets", (5, 410),
                               cv2.FONT_HERSHEY_DUPLEX, .4, [250, 200, 255], 1)
         cv2.line(IMG, (5,430), (85,430), (50,50,50), 1)
+
+        if setting_change:
+            setting_change = False
+            AU_setting.put('on')
+            #AD_setting.put('on')
+            #BU_setting.put('on')
+            #BD_setting.put('on')
 
         cv2.imshow('Noksan', IMG)
         cv2.moveWindow('Noksan', 30, 0)
         cv2.waitKey(1)
-
         
         for i in range(AU_img.qsize()):
             imgAU = AU_img.get()
@@ -224,13 +214,14 @@ if __name__ == "__main__":
         """
         if program_off:
             AU_quit.put('off')
-            AD_quit.put('off')
+            #AD_quit.put('off')
             #BU_quit.put('off')
             #BD_quit.put('off')
             cv2.destroyAllWindows()
             break
 
+    p_AU.terminate()
     p_AU.join()
-    p_AD.join()
+    #p_AD.join()
     #p_BU.join()
     #p_BD.join()
