@@ -78,7 +78,7 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q, setting_Q):
                 
                     IMG_marked, detections, IMG = result
                     
-                    img_Q.put(cv2.resize(IMG, (250, 200), interpolation=cv2.INTER_LINEAR))
+                    img_Q.put(cv2.resize(IMG, (350, 350), interpolation=cv2.INTER_LINEAR))
                 
                     if 1 in tray[-2:] :
                         run_R(dic, attribute)
@@ -98,7 +98,7 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q, setting_Q):
                             show_NG(IMG, attribute, confidence)
             else:
                 _1, _2 = get_img()
-                IMG = np.zeros((250,200,3),np.uint8)
+                IMG = np.zeros((350,350,3),np.uint8)
                 IMG = cv2.putText(IMG, "Program not run plz press F5...", (10, 100), cv2.FONT_HERSHEY_DUPLEX, 1, [255,200,255], 2)
                 img_Q.put(IMG)
             
@@ -118,7 +118,7 @@ def load_camera(attribute):
         for i, cam in enumerate(camera):
             cam.Attach(tlFactory.CreateDevice(devices[attribute['cam_port']]))
         camera.Open()
-        #pylon.FeaturePersistence.Load(attribute['cam_setting'], cam.GetNodeMap(), True)
+        pylon.FeaturePersistence.Load(attribute['cam_setting'], cam.GetNodeMap(), True)
         print('*'*16)
         print("Camera Ready... Setting : {}".format(attribute['cam_setting']))
         print('*'*16)
