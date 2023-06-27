@@ -14,11 +14,12 @@ reject_click = False
 yolo_click = False
 setting_click = False
 
-AU_start, AD_start, BU_start, BD_start = Queue(), Queue(), Queue(), Queue()
-AU_quit, AD_quit, BU_quit, BD_quit = Queue(), Queue(), Queue(), Queue()
-AU_reject, AD_reject, BU_reject, BD_reject = Queue(), Queue(), Queue(), Queue()
-AU_img, AD_img, BU_img, BD_img = Queue(), Queue(), Queue(), Queue()
-AU_setting, AD_setting, BU_setting, BD_setting = Queue(), Queue(), Queue(), Queue()
+AU_start, AD_start, AU_quit, AD_quit  = Queue(), Queue(), Queue(), Queue()
+BU_start, BD_start, BU_quit, BD_quit = Queue(), Queue(), Queue(), Queue()
+AU_reject, AD_reject, AU_img, AD_img = Queue(), Queue(), Queue(), Queue()
+BU_reject, BD_reject, BU_img, BD_img = Queue(), Queue(), Queue(), Queue()
+AU_setting, AD_setting = Queue(), Queue()
+BU_setting, BD_setting = Queue(), Queue()
 
 def mouse_event(event, x, y, flags, param):
     global program_off, reject_run, yolo_run, setting_change, off_click, reject_click, yolo_click, setting_click
