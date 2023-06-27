@@ -88,9 +88,9 @@ def Main(line, start_Q, quit_Q, reject_Q, img_Q, setting_Q):
                 
                     if detections:
                         answer, confidence, name = decide_ng(detections, attribute)
-                    
+                        #print(answer, confidence, name)
                         if answer:
-                            if reject_or_pass == 'reject':
+                            if reject_or_pass == 'reject' and confidence >= properties.Reject_limit:
                                 tray[0] = 1
 
                             IMG_name = save_img(pic, attribute, confidence, name)
@@ -134,7 +134,7 @@ def load_camera(attribute):
 
 def get_img():
     try:
-        grabResult = cameras.RetrieveResult(2000, pylon.TimeoutHandling_ThrowException)
+        grabResult = cameras.RetrieveResult(50, pylon.TimeoutHandling_ThrowException)
         if cameras.IsGrabbing():
             image_raw = converter.Convert(grabResult)
             image_raw = image_raw.GetArray()
@@ -207,7 +207,7 @@ def decide_ng(detections, attribute):
     name = None
     for label, confi, posi, in detections:
         if 'Reject' in label:
-            if float(confi) / 100 > properties.Reject_limit:
+            if float(confi) / 100 > properties.Save_img_limit:
                 answer = True
                 if float(confi) > confidence:
                     confidence = float(confi)
@@ -249,7 +249,7 @@ def make_dir(save_folder=properties.save_folder):
 
     return dirname_reject
 
-def sv_img(img, attribute, confidence, name) :
+def save_img(img, attribute, confidence, label) :
     """ 이미지 저장 """
     dirname_reject = make_dir(properties.save_folder)
     name1 = str(label) + "-" + str(strftime("%Y-%m-%d-%H-%M-%S", localtime()))
