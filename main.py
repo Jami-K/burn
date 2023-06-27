@@ -87,16 +87,21 @@ if __name__ == "__main__":
     #utils.del_folder()
     
     p_AU = Process(target=utils.Main, args=('A_U', AU_start, AU_quit, AU_reject, AU_img, AU_setting,))
-    #p_AD = Process(target=utils.Main, args=('A_D', AD_start, AD_quit, AD_reject, AD_img,))
-    #p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img,))
-    #p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img,))
+    p_AD = Process(target=utils.Main, args=('A_D', AD_start, AD_quit, AD_reject, AD_img, AD_setting,))
+    p_BU = Process(target=utils.Main, args=('B_U', BU_start, BU_quit, BU_reject, BU_img, BU_setting,))
+    p_BD = Process(target=utils.Main, args=('B_D', BD_start, BD_quit, BD_reject, BD_img, BD_setting,))
 
     p_AU.start()
-    #p_AD.start()
-    #p_BU.start()
-    #p_BD.start()
+    time.sleep(1)
+    p_AD.start()
+    time.sleep(1)
+    p_BU.start()
+    time.sleep(1)
+    p_BD.start()
+    time.sleep(1)
 
-    cv2.namedWindow('Noksan', flags=cv2.WINDOW_AUTOSIZE)
+    cv2.namedWindow('Noksan', flags=cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(winname='Noksan', width=100, height=490)
     cv2.setMouseCallback('Noksan', mouse_event)
     
     while True:
@@ -181,48 +186,51 @@ if __name__ == "__main__":
         if setting_change:
             setting_change = False
             AU_setting.put('on')
-            #AD_setting.put('on')
-            #BU_setting.put('on')
-            #BD_setting.put('on')
+            AD_setting.put('on')
+            BU_setting.put('on')
+            BD_setting.put('on')
 
         cv2.imshow('Noksan', IMG)
-        cv2.moveWindow('Noksan', 30, 0)
+        cv2.moveWindow('Noksan', 10, 0)
         cv2.waitKey(1)
         
         for i in range(AU_img.qsize()):
             imgAU = AU_img.get()
             if i == 0:
                 cv2.imshow('A-Upper', imgAU)
-                cv2.moveWindow('A-Upper', 0, 600)
+                cv2.moveWindow('A-Upper', 175, 50)
 
         for i in range(AD_img.qsize()):
             imgAD = AD_img.get()
             if i == 0:
                 cv2.imshow('A-Down', imgAD)
-                cv2.moveWindow('A-Down', 0, 600)
-        """
+                cv2.moveWindow('A-Down', 175, 500)
+        
         for i in range(BU_img.qsize()):
             imgBU = BU_img.get()
             if i == 0:
                 cv2.imshow('B-Upper', imgBU)
-                cv2.moveWindow('B-Upper', 800, 600)
+                cv2.moveWindow('B-Upper', 575, 50)
 
         for i in range(BD_img.qsize()):
             imgBD = BD_img.get()
             if i == 0:
                 cv2.imshow('B-Down', imgBD)
-                cv2.moveWindow('B-Down', 800, 600)
-        """
+                cv2.moveWindow('B-Down', 575, 500)
+        
         if program_off:
             AU_quit.put('off')
-            #AD_quit.put('off')
-            #BU_quit.put('off')
-            #BD_quit.put('off')
+            AD_quit.put('off')
+            BU_quit.put('off')
+            BD_quit.put('off')
             cv2.destroyAllWindows()
             break
 
     p_AU.terminate()
+    p_AD.terminate()
     p_AU.join()
-    #p_AD.join()
-    #p_BU.join()
-    #p_BD.join()
+    p_AD.join()
+    p_BU.terminate()
+    p_BD.terminate()
+    p_BU.join()
+    p_BD.join()
